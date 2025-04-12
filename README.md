@@ -30,6 +30,46 @@ A Next.js application for uploading and managing videos with role-based access c
      - `GOOGLE_CLIENT_SECRET`: Your Google OAuth client secret
      - Other environment variables as needed
 
+## Deployment to Vercel
+
+1. Create a Vercel account at [vercel.com](https://vercel.com) if you don't have one
+
+2. Install Vercel CLI (optional):
+   ```bash
+   npm install -g vercel
+   ```
+
+3. Deploy using Vercel CLI:
+   ```bash
+   vercel
+   ```
+   Or deploy directly from GitHub:
+   - Push your code to GitHub
+   - Import your repository in Vercel
+   - Configure environment variables
+   - Deploy
+
+4. Environment Variables:
+   Add the following environment variables in your Vercel project settings:
+   ```
+   NEXTAUTH_URL=https://your-domain.vercel.app
+   NEXTAUTH_SECRET=your-secret-key
+   GOOGLE_CLIENT_ID=your-google-client-id
+   GOOGLE_CLIENT_SECRET=your-google-client-secret
+   GOOGLE_CLOUD_PROJECT_ID=your-project-id
+   GOOGLE_CLOUD_BUCKET_NAME=your-bucket-name
+   GOOGLE_CLOUD_PRIVATE_KEY_ID=your-private-key-id
+   GOOGLE_CLOUD_PRIVATE_KEY=your-private-key
+   GOOGLE_CLOUD_CLIENT_EMAIL=your-client-email
+   GOOGLE_CLOUD_CLIENT_ID=your-client-id
+   GOOGLE_CLOUD_CLIENT_CERT_URL=your-cert-url
+   ```
+
+5. After deployment:
+   - Your site will be available at: `https://your-domain.vercel.app`
+   - You can set up a custom domain in the Vercel dashboard
+   - Enable automatic deployments from your GitHub repository
+
 ## Features
 
 - User authentication (Email and Google)
@@ -44,6 +84,8 @@ A Next.js application for uploading and managing videos with role-based access c
 - npm or yarn
 - Google Cloud account
 - Google OAuth credentials
+- Vercel account
+- Google Cloud Platform account (for OAuth and storage)
 
 ## Setup
 

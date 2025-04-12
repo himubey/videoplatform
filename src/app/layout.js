@@ -7,16 +7,17 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata = {
   title: "Video Platform",
   description: "Upload and manage educational videos",
-  icons: {
-    icon: '/favicon.jpg',
-  },
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className={inter.className}>
-        <Providers>{children}</Providers>
+        <Providers>
+          <main className="min-h-screen bg-gray-50">
+            {children}
+          </main>
+        </Providers>
       </body>
     </html>
   );
