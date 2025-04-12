@@ -6,6 +6,29 @@ import prisma from "@/lib/prisma";
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
+// Ensure NEXTAUTH_SECRET is set
+if (!process.env.NEXTAUTH_SECRET) {
+  throw new Error('Please provide process.env.NEXTAUTH_SECRET');
+}
+
+// Demo users configuration
+const demoUsers = [
+  {
+    id: "1",
+    email: "admin@demo.com",
+    password: "admin123",
+    name: "Demo Admin",
+    role: "admin"
+  },
+  {
+    id: "2",
+    email: "teacher@demo.com",
+    password: "teacher123",
+    name: "Demo Teacher",
+    role: "teacher"
+  }
+];
+
 const handler = NextAuth({
   providers: [
     GoogleProvider({
@@ -19,55 +42,41 @@ const handler = NextAuth({
         password: { label: "Password", type: "password" }
       },
       async authorize(credentials) {
-        // Demo users
-        const demoUsers = [
-          {
-            id: "1",
-            email: "admin@demo.com",
-            password: "admin123",
-            name: "Demo Admin",
-            role: "admin"
-          },
-          {
-            id: "2",
-            email: "teacher@demo.com",
-            password: "teacher123",
-            name: "Demo Teacher",
-            role: "teacher"
-          }
-        ];
+        if (!credentials?.email || !credentials?.password) {
+          throw new Error('Please enter both email and password');
+        }
 
         const user = demoUsers.find(u => 
           u.email === credentials.email && 
           u.password === credentials.password
         );
 
-        if (user) {
-          // Check if user exists in database
-          let dbUser = await prisma.user.findUnique({
-            where: { email: user.email },
-          });
-
-          // If user doesn't exist, create one
-          if (!dbUser) {
-            dbUser = await prisma.user.create({
-              data: {
-                email: user.email,
-                name: user.name,
-                role: user.role,
-              },
-            });
-          }
-
-          return {
-            id: dbUser.id,
-            name: dbUser.name,
-            email: dbUser.email,
-            role: dbUser.role
-          };
+        if (!user) {
+          throw new Error('Invalid email or password');
         }
 
-        return null;
+        // Check if user exists in database
+        let dbUser = await prisma.user.findUnique({
+          where: { email: user.email },
+        });
+
+        // If user doesn't exist, create one
+        if (!dbUser) {
+          dbUser = await prisma.user.create({
+            data: {
+              email: user.email,
+              name: user.name,
+              role: user.role,
+            },
+          });
+        }
+
+        return {
+          id: dbUser.id,
+          name: dbUser.name,
+          email: dbUser.email,
+          role: dbUser.role
+        };
       }
     })
   ],
