@@ -1,18 +1,15 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '../auth/[...nextauth]/route';
-import { upload, uploadToCloud } from '@/lib/storage';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import prisma from '@/lib/prisma';
 
 export async function GET() {
-  try {
-    const session = await getServerSession(authOptions);
-    if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+  const session = await getServerSession();
+  
+  if (!session) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
 
+  try {
     const videos = await prisma.video.findMany({
       where: {
         userId: session.user.id,
@@ -21,7 +18,7 @@ export async function GET() {
         createdAt: 'desc',
       },
     });
-
+    
     return NextResponse.json(videos);
   } catch (error) {
     console.error('Error fetching videos:', error);
@@ -33,40 +30,29 @@ export async function GET() {
 }
 
 export async function POST(request) {
+  const session = await getServerSession();
+  
+  if (!session) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
-    const session = await getServerSession(authOptions);
-    if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const formData = await request.formData();
-    const file = formData.get('file');
-
-    if (!file) {
-      return NextResponse.json(
-        { error: 'No file uploaded' },
-        { status: 400 }
-      );
-    }
-
-    // Upload to Cloudinary
-    const uploadResult = await uploadToCloud(file);
-
-    // Save to database
+    const { title, description, url } = await request.json();
+    
     const video = await prisma.video.create({
       data: {
-        title: file.name,
-        url: uploadResult.url,
-        duration: uploadResult.duration,
+        title,
+        description,
+        url,
         userId: session.user.id,
       },
     });
-
+    
     return NextResponse.json(video);
   } catch (error) {
     console.error('Error uploading video:', error);
     return NextResponse.json(
-      { error: 'Failed to upload video' },
+      { error: 'Failed to create video' },
       { status: 500 }
     );
   }
