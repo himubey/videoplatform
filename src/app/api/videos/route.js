@@ -2,14 +2,17 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import prisma from '@/lib/prisma';
 
-export async function GET() {
-  const session = await getServerSession();
-  
-  if (!session) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
+export async function GET() {
   try {
+    const session = await getServerSession();
+    
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const videos = await prisma.video.findMany({
       where: {
         userId: session.user.id,
@@ -30,13 +33,13 @@ export async function GET() {
 }
 
 export async function POST(request) {
-  const session = await getServerSession();
-  
-  if (!session) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
   try {
+    const session = await getServerSession();
+    
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const { title, description, url } = await request.json();
     
     const video = await prisma.video.create({
@@ -50,7 +53,7 @@ export async function POST(request) {
     
     return NextResponse.json(video);
   } catch (error) {
-    console.error('Error uploading video:', error);
+    console.error('Error creating video:', error);
     return NextResponse.json(
       { error: 'Failed to create video' },
       { status: 500 }
