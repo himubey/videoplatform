@@ -104,14 +104,18 @@ const handler = NextAuth({
         const dbUser = await prisma.user.findUnique({
           where: { email: session.user.email },
         });
-        session.user.id = dbUser?.id;
-        session.user.role = dbUser?.role;
+        if (dbUser) {
+          session.user.id = dbUser.id;
+          session.user.role = dbUser.role;
+          session.user.name = dbUser.name;
+        }
       }
       return session;
     },
     async jwt({ token, user }) {
       if (user) {
         token.role = user.role;
+        token.id = user.id;
       }
       return token;
     }
@@ -120,8 +124,6 @@ const handler = NextAuth({
     signIn: '/auth/signin',
     error: '/auth/error',
   },
-  secret: process.env.NEXTAUTH_SECRET,
-  debug: process.env.NODE_ENV === 'development',
   session: {
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30 days
@@ -129,6 +131,8 @@ const handler = NextAuth({
   jwt: {
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
+  secret: process.env.NEXTAUTH_SECRET,
+  debug: process.env.NODE_ENV === 'development',
 });
 
 export { handler as GET, handler as POST }; 
