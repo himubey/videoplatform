@@ -26,13 +26,13 @@ export default function Home() {
           <nav className="flex items-center justify-between py-6">
             <div className="flex items-center space-x-2">
               <div className="relative w-48 h-16">
-                <Image
+        <Image
                   src="/Bansal_logo.png"
                   alt="Bansal Classes Logo"
                   fill
                   className="object-contain"
-                  priority
-                />
+          priority
+        />
               </div>
             </div>
             <div>
