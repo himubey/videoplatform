@@ -1,6 +1,7 @@
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
+import prisma from "@/lib/prisma";
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -57,14 +58,38 @@ const handler = NextAuth({
   callbacks: {
     async signIn({ user, account, profile }) {
       if (account.provider === "google") {
-        const isAdmin = user.email === process.env.ADMIN_EMAIL;
-        user.role = isAdmin ? 'admin' : 'teacher';
+        try {
+          // Check if user exists
+          const existingUser = await prisma.user.findUnique({
+            where: { email: user.email },
+          });
+
+          // If user doesn't exist, create a new one
+          if (!existingUser) {
+            await prisma.user.create({
+              data: {
+                email: user.email,
+                name: user.name,
+                role: "teacher", // Default role
+              },
+            });
+          }
+
+          return true;
+        } catch (error) {
+          console.error("Error in signIn callback:", error);
+          return false;
+        }
       }
       return true;
     },
     async session({ session, token }) {
       if (session?.user) {
-        session.user.role = token.role;
+        const dbUser = await prisma.user.findUnique({
+          where: { email: session.user.email },
+        });
+        session.user.id = dbUser?.id;
+        session.user.role = dbUser?.role;
       }
       return session;
     },
@@ -80,6 +105,7 @@ const handler = NextAuth({
     error: '/auth/error',
   },
   secret: process.env.NEXTAUTH_SECRET,
+  debug: process.env.NODE_ENV === 'development',
 });
 
 export { handler as GET, handler as POST }; 
