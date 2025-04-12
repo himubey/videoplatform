@@ -43,11 +43,27 @@ const handler = NextAuth({
         );
 
         if (user) {
+          // Check if user exists in database
+          let dbUser = await prisma.user.findUnique({
+            where: { email: user.email },
+          });
+
+          // If user doesn't exist, create one
+          if (!dbUser) {
+            dbUser = await prisma.user.create({
+              data: {
+                email: user.email,
+                name: user.name,
+                role: user.role,
+              },
+            });
+          }
+
           return {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            role: user.role
+            id: dbUser.id,
+            name: dbUser.name,
+            email: dbUser.email,
+            role: dbUser.role
           };
         }
 
