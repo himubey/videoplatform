@@ -30,22 +30,18 @@ const upload = multer({
 });
 
 // Function to upload file to Cloudinary
-const uploadToCloud = async (file, resource_type) => {
+const uploadToCloud = async (file) => {
   try {
-    if (!process.env.CLOUDINARY_CLOUD_NAME ||
-      !process.env.CLOUDINARY_API_KEY ||
-      !process.env.CLOUDINARY_API_SECRET) {
+    if (!process.env.CLOUDINARY_CLOUD_NAME || 
+        !process.env.CLOUDINARY_API_KEY || 
+        !process.env.CLOUDINARY_API_SECRET) {
       throw new Error('Cloudinary credentials are not configured');
     }
 
-    console.log(`Attempting to upload to Cloudinary with resource_type: ${resource_type}`);
-
     const result = await cloudinary.uploader.upload(file.path, {
-      resource_type: resource_type,
+      resource_type: 'video',
       folder: 'class-videos',
     });
-
-    console.log('Cloudinary upload result:', result);
 
     return {
       url: result.secure_url,
@@ -54,7 +50,6 @@ const uploadToCloud = async (file, resource_type) => {
     };
   } catch (error) {
     console.error('Error uploading to Cloudinary:', error);
-    console.error('Cloudinary error details:', error.message);
     throw error;
   }
 };
@@ -62,4 +57,4 @@ const uploadToCloud = async (file, resource_type) => {
 module.exports = {
   upload,
   uploadToCloud,
-};
+}; 
