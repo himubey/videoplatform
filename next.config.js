@@ -1,7 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: ['lh3.googleusercontent.com'],
+    domains: [
+      'slideplayer.com',
+      'res.cloudinary.com', // If you're using Cloudinary
+      'storage.googleapis.com', // If you're using Google Cloud Storage
+      'localhost'
+    ],
   },
   env: {
     NEXTAUTH_URL: process.env.NEXTAUTH_URL,
