@@ -10,6 +10,15 @@ export default function DashboardLayout({ children }) {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const isStudent = session?.user?.role === 'student';
+
+  const navigation = [
+    { name: 'Dashboard', href: '/dashboard' },
+    ...(isStudent ? [] : [
+      { name: 'Upload Video', href: '/dashboard/upload' },
+      { name: 'Videos', href: '/dashboard/videos' }
+    ])
+  ];
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -46,26 +55,15 @@ export default function DashboardLayout({ children }) {
                 </div>
               </div>
               <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
-                <Link
-                  href="/dashboard"
-                  className="border-indigo-500 text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
-                >
-                  Dashboard
-                </Link>
-                {session?.user?.role === 'admin' && (
+                {navigation.map((item) => (
                   <Link
-                    href="/dashboard/admin"
-                    className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
+                    key={item.name}
+                    href={item.href}
+                    className="border-indigo-500 text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
                   >
-                    Admin Panel
+                    {item.name}
                   </Link>
-                )}
-                <Link
-                  href="/dashboard/upload"
-                  className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
-                >
-                  Upload Video
-                </Link>
+                ))}
               </div>
             </div>
             <div className="hidden sm:ml-6 sm:flex sm:items-center">

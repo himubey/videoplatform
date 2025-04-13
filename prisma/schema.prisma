@@ -16,11 +16,20 @@ model Video {
   title       String
   description String?
   url         String
+  thumbnail   String?
   duration    Float?
+  examType    String
+  subject     Subject? @relation(fields: [subjectId], references: [id])
+  subjectId   String?
+  chapter     Chapter? @relation(fields: [chapterId], references: [id])
+  chapterId   String?
+  class       Class?   @relation(fields: [classId], references: [id])
+  classId     String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   userId      String
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  studentAccess StudentAccess[]
 }
 
 model User {
@@ -29,6 +38,70 @@ model User {
   email     String   @unique
   role      String   @default("teacher")
   videos    Video[]
+  documents Document[]
+  studentAccess StudentAccess[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Subject {
+  id          String    @id @default(cuid())
+  name        String
+  description String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  videos      Video[]
+  chapters    Chapter[]
+  documents   Document[]
+}
+
+model Class {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  videos      Video[]
+  documents   Document[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Document {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  url         String
+  subject     Subject  @relation(fields: [subjectId], references: [id])
+  subjectId   String
+  class       Class    @relation(fields: [classId], references: [id])
+  classId     String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  studentAccess StudentAccess[]
+}
+
+model StudentAccess {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  videoId     String?
+  video       Video?   @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  documentId  String?
+  document    Document? @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  watchTime   Float    @default(0)
+  maxWatchTime Float   @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Chapter {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  subject     Subject  @relation(fields: [subjectId], references: [id])
+  subjectId   String
+  videos      Video[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 } 
